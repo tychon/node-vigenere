@@ -220,10 +220,13 @@ calcLetterFrequencies = exports.calcLetterFrequencies = function (combinations, 
 /*
  * Sort the given combination array by the letter frequency divergance.
  * The best fit will appear at the top of the array.
+ * not ascending: best fit at the bottom
+ * ascending: best fit at the top
  */
-sortByLetterFrequencies = exports.sortByLetterFrequencies = function (combinations) {
+sortByLetterFrequencies = exports.sortByLetterFrequencies = function (combinations, ascending) {
   combinations.sort(function(one, two) {
-    return two.frequencyDivergance - one.frequencyDivergance
+    if (ascending) return two.frequencyDivergance - one.frequencyDivergance
+    else return one.frequencyDivergance - two.frequencyDivergance
   })
 }
 
@@ -231,7 +234,7 @@ printCombinationsWithFrequencyTable = exports.printCombinationsWithFrequencyTabl
   for (var i = 0; i < combinations.length; i++) {
     var combination = combinations[i]
     console.log(combination.key+" : "+combination.plaintext)
-    console.log(combination.frequencyDiverganceSum+" -> "+combination.frequencyDivergance)
+    console.log("fit: "+combination.frequencyDivergance)
     //console.log(combination.frequencyTable)
     var out = ''
     for (var j = 0; j < combination.frequencyTable.length; j++) {
