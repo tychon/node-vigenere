@@ -1,0 +1,21 @@
+{
+  "author": "tychon <tychon4.2@googlemail.com>",
+  "name": "vigenere",
+  "description": "Small library to crypt, decrypt and crack something in the vignere-code.",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tychon/vigenere.git"
+  },
+  "main": "vigenere.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tap": "*"
+  },
+  "engines": {
+    "node": "*"
+  }
+}

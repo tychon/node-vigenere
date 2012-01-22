@@ -1,10 +1,14 @@
-ALPHABET = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+/*
+ * TODO short comment
+ */
+
+exports.ALPHABET = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
 // wikipedia
-TOP_10_OF_MOST_COMMON_GERMAN_WORDS = ['DER', 'DIE', 'UND', 'IN', 'DEN', 'VON', 'ZU', 'DAS', 'MIT', 'SICH']
-TOP_10_OF_MOST_COMMON_ENGLISH_WORDS = ['THE', 'BE', 'TO', 'OF', 'AND', 'A', 'IN', 'THAT', 'HAVE', 'I']
+exports.TOP_10_OF_MOST_COMMON_GERMAN_WORDS = ['DER', 'DIE', 'UND', 'IN', 'DEN', 'VON', 'ZU', 'DAS', 'MIT', 'SICH']
+exports.TOP_10_OF_MOST_COMMON_ENGLISH_WORDS = ['THE', 'BE', 'TO', 'OF', 'AND', 'A', 'IN', 'THAT', 'HAVE', 'I']
 
-RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_GERMAN_LANGUAGE = [
+exports.RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_GERMAN_LANGUAGE = [
   {letter: 'E', probability: 0.1740},
   {letter: 'N', probability: 0.0978},
   {letter: 'I', probability: 0.0755},
@@ -32,7 +36,7 @@ RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_GERMAN_LANGUAGE = [
   {letter: 'X', probability: 0.0003},
   {letter: 'Q', probability: 0.0002}
 ]
-RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_ENGLISH_LANGUAGE = [
+exports.RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_ENGLISH_LANGUAGE = [
   {letter: 'E', probability: 0.12702},
   {letter: 'T', probability: 0.09056},
   {letter: 'A', probability: 0.08167},
@@ -61,7 +65,24 @@ RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_ENGLISH_LANGUAGE = [
   {letter: 'Z', probability: 0.00074}
 ]
 
-function cryptText (text, key, overlappingIndex, autokey) {
+toNumbers = exports.toNumbers = function (alphabet, text) {
+  var result = []
+  for (var i = 0; i < text.length; i++) result.push(alphabet.indexOf(text[i]))
+  return result
+}
+toString = exports.toString = function (alphabet, numbers) {
+  var result = ''
+  for (var i = 0; i < numbers.length; i++) result += alphabet[numbers[i]]
+  return result
+}
+
+ecryptText = exports.encryptText = function (plaintext, key, alphabet, autokey) {
+  plaintext = toNumbers(alphabet, plaintext)
+  key = toNumbers(alphabet, key)
+  var ciphertext = encrypt(plaintext, key, alphabet.length, autokey)
+  return toString(alphabet, ciphertext)
+}
+encrypt = exports.encrypt = function (text, key, overlappingIndex, autokey) {
   if (autokey) key = key.slice() // make a copy
   var keyIndex = 0
   var result = []
@@ -75,7 +96,14 @@ function cryptText (text, key, overlappingIndex, autokey) {
   }
   return result
 }
-function decryptText (text, key, overlappingIndex, autokey) {
+
+decryptText = exports.decryptText = function (ciphertext, key, alphabet, autokey) {
+  ciphertext = toNumbers(alphabet, ciphertext)
+  key = toNumbers(alphabet, key)
+  var plaintext = decrypt(ciphertext, key, alphabet.length, autokey)
+  return toString(alphabet, plaintext)
+}
+decrypt = exports.decrypt = function (text, key, overlappingIndex, autokey) {
   if (autokey) key = key.slice() // make a copy
   var keyIndex = 0
   var result = []
@@ -92,24 +120,13 @@ function decryptText (text, key, overlappingIndex, autokey) {
   return result
 }
 
-function toNumbers(alphabet, text) {
-  var result = []
-  for (var i = 0; i < text.length; i++) result.push(alphabet.indexOf(text[i]))
-  return result
-}
-function toString(alphabet, numbers) {
-  var result = ''
-  for (var i = 0; i < numbers.length; i++) result += alphabet[numbers[i]]
-  return result
-}
-
-function bruteForce(text, keyLength, alphabet, autokey, keywords) {
+bruteForce = exports.bruteForce = function (text, keyLength, alphabet, autokey, keywords) {
   var key = []
   for (var i = 0; i < keyLength; i++) key.push(0)
   var possibilities = []
   
   while (true) {
-    var plain = decryptText(text, key, alphabet.length, autokey)
+    var plain = decrypt(text, key, alphabet.length, autokey)
     
     if (keywords) {
       for (var i = 0; i < keywords.length; i++) {
@@ -151,7 +168,7 @@ function bruteForce(text, keyLength, alphabet, autokey, keywords) {
   return possibilities
 }
 
-function calcLetterFrequencies(combinations, frequencyTable) {
+calcLetterFrequencies = exports.calcLetterFrequencies = function (combinations, frequencyTable) {
   for (var i = 0; i < combinations.length; i++) {
     var combination = combinations[i]
     
@@ -175,12 +192,13 @@ function calcLetterFrequencies(combinations, frequencyTable) {
  * Sort the given combination array by the letter frequency divergance.
  * The best fit will appear at the top of the array.
  */
-function sortByLetterFrequencies(combinations) {
+sortByLetterFrequencies = exports.sortByLetterFrequencies = function (combinations) {
   combinations.sort(function(one, two) {
     return two.frequencyDivergance - one.frequencyDivergance
   })
 }
-function printCombinationsWithFrequencyTable(combinations) {
+
+printCombinationsWithFrequencyTable = exports.printCombinationsWithFrequencyTable = function (combinations) {
   for (var i = 0; i < combinations.length; i++) {
     var combination = combinations[i]
     console.log(combination.key+" : "+combination.plaintext)
@@ -194,13 +212,4 @@ function printCombinationsWithFrequencyTable(combinations) {
     console.log(out)
   }
 }
-
-plaintext = 'wmydwaydzetpkxzlapgslfbtetpntpgaabmrxtlnksxqyfiwgina'.toUpperCase()
-plainnumbers = toNumbers(ALPHABET, plaintext)
-keylength = 3
-
-table = bruteForce(plainnumbers, keylength, ALPHABET, false, TOP_10_OF_MOST_COMMON_GERMAN_WORDS)
-calcLetterFrequencies(table, RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_GERMAN_LANGUAGE)
-sortByLetterFrequencies(table)
-printCombinationsWithFrequencyTable(table)
 
