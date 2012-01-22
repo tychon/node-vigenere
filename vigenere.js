@@ -1,10 +1,11 @@
-/*
- * TODO short comment
- */
+// see the readme of this project for more detailed information
 
+/* the standard alphabet without any special characters */
 exports.ALPHABET = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
-// wikipedia
+/* Some things to analyse your plaintext.
+ */
+// source: Wikipedia (Jan 2011)
 exports.TOP_10_OF_MOST_COMMON_GERMAN_WORDS = ['DER', 'DIE', 'UND', 'IN', 'DEN', 'VON', 'ZU', 'DAS', 'MIT', 'SICH']
 exports.TOP_10_OF_MOST_COMMON_ENGLISH_WORDS = ['THE', 'BE', 'TO', 'OF', 'AND', 'A', 'IN', 'THAT', 'HAVE', 'I']
 
@@ -65,23 +66,33 @@ exports.RELATIVE_FREQUENCIES_OF_LETTERS_IN_THE_ENGLISH_LANGUAGE = [
   {letter: 'Z', probability: 0.00074}
 ]
 
+/* Convert a text to an array of numbers based on the alphabet.
+ * Letters that are not contained in the alphabet will apper as -1 in the result.
+ */
 toNumbers = exports.toNumbers = function (alphabet, text) {
   var result = []
   for (var i = 0; i < text.length; i++) result.push(alphabet.indexOf(text[i]))
   return result
 }
+/* Convert a number array back to a string.
+ * You should use the same alphabet :-) .
+ */
 toString = exports.toString = function (alphabet, numbers) {
   var result = ''
   for (var i = 0; i < numbers.length; i++) result += alphabet[numbers[i]]
   return result
 }
 
+/* Does converting and encrypting in one step. */
 ecryptText = exports.encryptText = function (plaintext, key, alphabet, autokey) {
   plaintext = toNumbers(alphabet, plaintext)
   key = toNumbers(alphabet, key)
   var ciphertext = encrypt(plaintext, key, alphabet.length, autokey)
   return toString(alphabet, ciphertext)
 }
+/* Encrypt the given text (as number array) with the given key (as number array).
+ * The overlapping index indicates the end of the alphabet.
+ */
 encrypt = exports.encrypt = function (text, key, overlappingIndex, autokey) {
   if (autokey) key = key.slice() // make a copy
   var keyIndex = 0
@@ -97,12 +108,16 @@ encrypt = exports.encrypt = function (text, key, overlappingIndex, autokey) {
   return result
 }
 
+/* Does converting and decrypting in one step. */
 decryptText = exports.decryptText = function (ciphertext, key, alphabet, autokey) {
   ciphertext = toNumbers(alphabet, ciphertext)
   key = toNumbers(alphabet, key)
   var plaintext = decrypt(ciphertext, key, alphabet.length, autokey)
   return toString(alphabet, plaintext)
 }
+/* Decrypt the given text (as number array) with the given key (as number array).
+ * The overlapping index indicates the end of the alphabet.
+ */
 decrypt = exports.decrypt = function (text, key, overlappingIndex, autokey) {
   if (autokey) key = key.slice() // make a copy
   var keyIndex = 0
@@ -120,6 +135,10 @@ decrypt = exports.decrypt = function (text, key, overlappingIndex, autokey) {
   return result
 }
 
+/* Try all combinations of the fixed-size-key.
+ * You can give keywords (as regular expressions) to filter the output. If
+ * `keywords` is undefined, all combinations will show up in the result.
+ */
 bruteForce = exports.bruteForce = function (text, keyLength, alphabet, autokey, keywords) {
   var key = []
   for (var i = 0; i < keyLength; i++) key.push(0)
@@ -168,6 +187,15 @@ bruteForce = exports.bruteForce = function (text, keyLength, alphabet, autokey, 
   return possibilities
 }
 
+/* Calculate the letter frequencies in the plaintexts and compare them
+ * to the given frequency table. Only letters in the frequency table will be
+ * considered.
+ * The frequencyDiverganceSum is the sum of the difference between the letter
+ * frequency in the plaintext and the listed relative frequency in the table for
+ * every letter.
+ * The frequencyDivergance is this result scaled to fit the range from 0 to 1.
+ * The closer frequencyDivergance is to 1 the smaller is the divergance.
+ */
 calcLetterFrequencies = exports.calcLetterFrequencies = function (combinations, frequencyTable) {
   for (var i = 0; i < combinations.length; i++) {
     var combination = combinations[i]
@@ -188,6 +216,7 @@ calcLetterFrequencies = exports.calcLetterFrequencies = function (combinations, 
     combination.frequencyDivergance = 1 - combination.frequencyDiverganceSum / frequencyTable.length
   }
 }
+
 /*
  * Sort the given combination array by the letter frequency divergance.
  * The best fit will appear at the top of the array.
