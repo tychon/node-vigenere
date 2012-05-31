@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git://github.com/tychon/vigenere.git"
   },
-  "main": "vigenere.js",
+  "main": "simple_crypto.js",
   "scripts": {
     "test": "tap test/*.js"
   },
